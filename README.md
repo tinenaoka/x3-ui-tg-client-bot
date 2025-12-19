@@ -25,7 +25,7 @@ sudo apt install -y nodejs
 
 ### 2. Склонируй репозиторий и перейди в папку проекта
 ```bash
-git clone [[https://github.com/yourname/x3-ui-tg-client-bot.git]()](https://github.com/tinenaoka/x3-ui-tg-client-bot)
+git clone https://github.com/tinenaoka/x3-ui-tg-client-bot
 cd x3-ui-tg-client-bot
 ```
 

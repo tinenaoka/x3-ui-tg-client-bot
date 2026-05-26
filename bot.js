@@ -64,7 +64,7 @@ async function getClient(email) {
     });
 
     const data = await res.json();
-    if (!data.success) throw new Error('Ошибка добавления клиента');
+    if (!data.success) throw new Error('Ошибка получения клиента');
 
     return data.obj.client;
 }

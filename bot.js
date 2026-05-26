@@ -11,11 +11,6 @@ const {
     INBOUND_ID,
 } = process.env;
 
-function randomString(length) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-}
-
 // ---------------------- GET INBOUND ----------------------
 async function getInbound(inboundId) {
     const res = await fetch(`${X3UI_HOST}/panel/api/inbounds/get/${inboundId}`, {
@@ -34,18 +29,6 @@ async function getInbound(inboundId) {
 
 // ---------------------- ADD CLIENT ----------------------
 async function addClient(inbound, email) {
-    const client = {
-        id: randomString(30),
-        email: email,
-        enable: true,
-        flow: "xtls-rprx-vision",
-        limitIp: 0,
-        totalGB: 0,
-        expiryTime: 0,
-        subId: randomString(15),
-        comment: email
-    };
-
     const res = await fetch(`${X3UI_HOST}/panel/api/clients/add`, {
         method: 'POST',
         headers: {
@@ -53,10 +36,15 @@ async function addClient(inbound, email) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            id: inbound.id,
-            settings: {
-                clients: [client]
-            }
+            "client": {
+                "email": email,
+                "totalGB": 0,
+                "flow": "xtls-rprx-vision",
+                "tgId": 0,
+                "limitIp": 0,
+                "enable": true
+            },
+            "inboundIds": [inbound.id]
         })
     });
 

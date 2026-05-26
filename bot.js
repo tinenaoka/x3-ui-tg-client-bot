@@ -6,8 +6,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const {
     X3UI_HOST,
-    X3UI_USER,
-    X3UI_PASS,
+    X3UI_TOKEN,
     X3UI_HOST_CLEAR,
     INBOUND_ID,
 } = process.env;
@@ -17,30 +16,13 @@ function randomString(length) {
     return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-// ---------------------- AUTH ----------------------
-async function getToken() {
-    const res = await fetch(`${X3UI_HOST}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username: X3UI_USER,
-            password: X3UI_PASS
-        })
-    });
-
-    const data = await res.json();
-    if (!data.success) throw new Error('Ошибка входа в X3UI');
-
-    return res.headers.get('set-cookie');
-}
-
 // ---------------------- GET INBOUND ----------------------
-async function getInbound(cookie, inboundId) {
-    const res = await fetch(`${X3UI_HOST}/api/inbound/get/${inboundId}`, {
+async function getInbound(inboundId) {
+    const res = await fetch(`${X3UI_HOST}/panel/api/inbounds/get/${inboundId}`, {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'Cookie': cookie
+            'Authorization': `Bearer ${X3UI_TOKEN}`,
+            'Content-Type': 'application/json'
         }
     });
 
@@ -51,7 +33,7 @@ async function getInbound(cookie, inboundId) {
 }
 
 // ---------------------- ADD CLIENT ----------------------
-async function addClient(cookie, inbound, email) {
+async function addClient(inbound, email) {
     const client = {
         id: randomString(30),
         email: email,
@@ -64,11 +46,11 @@ async function addClient(cookie, inbound, email) {
         comment: email
     };
 
-    const res = await fetch(`${X3UI_HOST}/api/inbound/addClient`, {
+    const res = await fetch(`${X3UI_HOST}/panel/api/clients/add`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'Cookie': cookie
+            'Authorization': `Bearer ${X3UI_TOKEN}`,
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             id: inbound.id,
@@ -113,9 +95,8 @@ bot.action('create_client', async (ctx) => {
     const email = `tg_${ctx.from.id}_${Date.now()}@bot`;
 
     try {
-        const cookie = await getToken();
-        const inbound = await getInbound(cookie, INBOUND_ID);
-        const client = await addClient(cookie, inbound, email);
+        const inbound = await getInbound(INBOUND_ID);
+        const client = await addClient(inbound, email);
 
         const url = buildVlessUrl(inbound, client, email);
 
@@ -129,7 +110,7 @@ bot.action('create_client', async (ctx) => {
 });
 
 bot.launch();
-console.log('🚀 Bot started with new X3‑UI API');
+console.log('🚀 Bot started with Bearer Token API');
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));

@@ -51,9 +51,10 @@ async function addClient(inbound, email) {
     const data = await res.json();
     if (!data.success) throw new Error('Ошибка добавления клиента');
 
-    return client;
+    return data;
 }
 
+// ---------------------- GET CLIENT ----------------------
 async function getClient(email) {
     const res = await fetch(`${X3UI_HOST}/panel/api/clients/get/${email}`, {
         method: 'GET',
@@ -66,7 +67,7 @@ async function getClient(email) {
     const data = await res.json();
     if (!data.success) throw new Error('Ошибка получения клиента');
 
-    return data.obj.client;
+    return data.obj;
 }
 
 // ---------------------- BUILD VLESS URL ----------------------
@@ -74,7 +75,7 @@ function buildVlessUrl(inbound, client, email) {
     const stream = inbound.streamSettings;
     const reality = stream.realitySettings;
 
-    return `vless://${client.id}@${X3UI_HOST_CLEAR}:${inbound.port}` +
+    return `vless://${client.uuid}@${X3UI_HOST_CLEAR}:${inbound.port}` +
       `?type=${stream.network}` +
       `&security=${stream.security}` +
       `&pbk=${reality.settings.publicKey}` +

@@ -67,21 +67,26 @@ async function getClient(email) {
     const data = await res.json();
     if (!data.success) throw new Error('Ошибка получения клиента');
 
-    return data.obj;
+    return data.obj.client;
 }
 
 // ---------------------- BUILD VLESS URL ----------------------
 function buildVlessUrl(inbound, client, email) {
     const stream = inbound.streamSettings;
+    const settings = inbound.settings;
     const reality = stream.realitySettings;
 
     return `vless://${client.uuid}@${X3UI_HOST_CLEAR}:${inbound.port}` +
-      `?type=${stream.network}` +
+      `?encryption=${settings.encryption}` +
+      `&type=${stream.network}` +
+      `&pqv=${reality.settings.mldsa65Verify}` +
       `&security=${stream.security}` +
       `&pbk=${reality.settings.publicKey}` +
       `&sni=${reality.serverNames[0]}` +
       `&sid=${reality.shortIds[0]}` +
-      `&fp=chrome&spx=%2F&flow=${client.flow}` +
+      `&fp=${reality.settings.fingerprint}` +
+      `&spx=%2Fclcj4lwklvARrUo` +
+      `&flow=${client.flow}` +
       `#${email}`;
 }
 

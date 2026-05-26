@@ -54,6 +54,21 @@ async function addClient(inbound, email) {
     return client;
 }
 
+async function getClient(email) {
+    const res = await fetch(`${X3UI_HOST}/panel/api/clients/get/${email}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${X3UI_TOKEN}`,
+            'Content-Type': 'application/json'
+        },
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error('Ошибка добавления клиента');
+
+    return data.obj.client;
+}
+
 // ---------------------- BUILD VLESS URL ----------------------
 function buildVlessUrl(inbound, client, email) {
     const stream = inbound.streamSettings;
@@ -84,7 +99,8 @@ bot.action('create_client', async (ctx) => {
 
     try {
         const inbound = await getInbound(INBOUND_ID);
-        const client = await addClient(inbound, email);
+        await addClient(inbound, email);
+        const client = await getClient(email);
 
         const url = buildVlessUrl(inbound, client, email);
 
